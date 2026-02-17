@@ -69,7 +69,7 @@ Python3 bindings for QubesDB
 
 %build
 %{?set_build_flags}
-make %{?_smp_mflags} PYTHON=%{__python3} all
+make %{?_smp_mflags} PYTHON=%{__python3} BACKEND_VMM=%{?backend_vmm:%{backend_vmm}}%{!?backend_vmm:xen} all
 
 %install
 make install \
@@ -77,7 +77,8 @@ make install \
          DESTDIR=%{buildroot} \
          LIBDIR=%{_libdir} \
          BINDIR=%{_bindir} \
-         SBINDIR=%{_sbindir}
+         SBINDIR=%{_sbindir} \
+         BACKEND_VMM=%{?backend_vmm:%{backend_vmm}}%{!?backend_vmm:xen}
 %if "%{_sbindir}" != "%{_bindir}"
 mkdir -p %{buildroot}%{_sbindir}
 ln -s ../bin/qubesdb-daemon %{buildroot}%{_sbindir}/qubesdb-daemon
@@ -96,6 +97,10 @@ ln -s ../bin/qubesdb-daemon %{buildroot}%{_sbindir}/qubesdb-daemon
 %{_bindir}/qubesdb-daemon
 %if "%{_sbindir}" != "%{_bindir}"
 %{_sbindir}/qubesdb-daemon
+%endif
+%if "x%{?backend_vmm}" == "xkvm" || "x%{?backend_vmm}" == "xsocket"
+%{_bindir}/qubesdb-config-inject
+%{_bindir}/qubesdb-config-read
 %endif
 
 %files libs

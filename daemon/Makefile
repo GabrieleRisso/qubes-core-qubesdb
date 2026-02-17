@@ -4,17 +4,18 @@ EXEEXT =
 
 SYSTEMD ?= 1
 
-BACKEND_VMM ?= $(shell pkg-config --cflags vchan | sed 's/.*vchan-//')
+VCHAN_PKG = $(if $(BACKEND_VMM),vchan-$(BACKEND_VMM),vchan)
+BACKEND_VMM ?= $(shell pkg-config --variable=backend_vmm $(VCHAN_PKG) 2>/dev/null || echo xen)
 
 ifneq ($(OS),Windows_NT)
 CFLAGS += -fPIC -O2
-CFLAGS += `pkg-config --cflags vchan`
+CFLAGS += $(shell pkg-config --cflags $(VCHAN_PKG))
 ifeq ($(SYSTEMD),1)
 CFLAGS += `pkg-config --cflags libsystemd || pkg-config --cflags libsystemd-daemon`
 CFLAGS += -DHAVE_SYSTEMD
 LIBS += `pkg-config --libs libsystemd || pkg-config --libs libsystemd-daemon`
 endif
-LIBS += `pkg-config --libs vchan`
+LIBS += $(shell pkg-config --libs $(VCHAN_PKG))
 
 else # Windows_NT
 EXEEXT = .exe

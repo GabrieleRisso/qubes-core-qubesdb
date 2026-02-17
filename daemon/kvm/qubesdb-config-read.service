@@ -1,0 +1,13 @@
+[Unit]
+Description=QubesDB KVM initial config reader
+DefaultDependencies=no
+Before=qubes-db.service
+ConditionPathExists=/dev/virtio-ports/org.qubes-os.qubesdb
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/qubesdb-config-read
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
