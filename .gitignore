@@ -1,14 +1,3 @@
-*.a
-*.def
-*.dll
-*.exe
 *.o
-*.so
-*.swp
-rpm/
-deb/
-pkgs/
-/.artifacts/
-/selinux/*.pp
-/selinux/tmp/
-*.o
+daemon/kvm/qubesdb-config-inject
+daemon/kvm/qubesdb-config-read

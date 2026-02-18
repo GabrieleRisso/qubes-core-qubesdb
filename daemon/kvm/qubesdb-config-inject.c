@@ -124,18 +124,22 @@ static int send_end_marker(int fd)
  * Currently used as documentation; injection reads from config files.
  */
 static const char *const known_config_keys[] __attribute__((unused)) = {
+    "/name",
+    "/qubes-domain-id",
+    "/qubes-transport",
+    "/qubes-xen-shim",
     "/qubes-vm-type",
     "/qubes-vm-persistence",
     "/qubes-vm-updateable",
+    "/qubes-debug-mode",
+    "/qubes-base-template",
+    "/qubes-mac",
     "/qubes-ip",
     "/qubes-gateway",
     "/qubes-netmask",
     "/qubes-primary-dns",
     "/qubes-secondary-dns",
     "/qubes-timezone",
-    "/qubes-debug-mode",
-    "/qubes-mac",
-    "/qubes-base-template",
 };
 
 static int inject_from_file(int fd, const char *config_path)
