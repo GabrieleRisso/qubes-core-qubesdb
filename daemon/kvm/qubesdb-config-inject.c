@@ -52,7 +52,12 @@ static int connect_virtio_socket(const char *vm_name)
 
     memset(&addr, 0, sizeof(addr));
     addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, sock_path, sizeof(addr.sun_path) - 1);
+    if (strlen(sock_path) >= sizeof(addr.sun_path)) {
+        fprintf(stderr, "socket path too long: %s\n", sock_path);
+        close(fd);
+        return -1;
+    }
+    memcpy(addr.sun_path, sock_path, strlen(sock_path) + 1);
 
     if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         perror("connect to virtio-serial socket");
@@ -69,7 +74,11 @@ static int send_entry(int fd, uint8_t cmd, const char *path,
     struct qdb_hdr hdr;
     memset(&hdr, 0, sizeof(hdr));
     hdr.type = cmd;
-    strncpy(hdr.path, path, QDB_MAX_PATH - 1);
+    if (strlen(path) >= QDB_MAX_PATH) {
+        fprintf(stderr, "path too long: %s\n", path);
+        return -1;
+    }
+    memcpy(hdr.path, path, strlen(path) + 1);
     hdr.data_len = data_len;
 
     /* Send header */
@@ -112,20 +121,21 @@ static int send_end_marker(int fd)
 /*
  * Core VM configuration entries that must be injected at boot time.
  * These are the same keys that qubesdb normally populates from dom0.
+ * Currently used as documentation; injection reads from config files.
  */
-static const struct config_entry default_entries[] = {
-    { "/qubes-vm-type", "", 0 },
-    { "/qubes-vm-persistence", "", 0 },
-    { "/qubes-vm-updateable", "", 0 },
-    { "/qubes-ip", "", 0 },
-    { "/qubes-gateway", "", 0 },
-    { "/qubes-netmask", "", 0 },
-    { "/qubes-primary-dns", "", 0 },
-    { "/qubes-secondary-dns", "", 0 },
-    { "/qubes-timezone", "", 0 },
-    { "/qubes-debug-mode", "", 0 },
-    { "/qubes-mac", "", 0 },
-    { "/qubes-base-template", "", 0 },
+static const char *const known_config_keys[] __attribute__((unused)) = {
+    "/qubes-vm-type",
+    "/qubes-vm-persistence",
+    "/qubes-vm-updateable",
+    "/qubes-ip",
+    "/qubes-gateway",
+    "/qubes-netmask",
+    "/qubes-primary-dns",
+    "/qubes-secondary-dns",
+    "/qubes-timezone",
+    "/qubes-debug-mode",
+    "/qubes-mac",
+    "/qubes-base-template",
 };
 
 static int inject_from_file(int fd, const char *config_path)

@@ -53,6 +53,8 @@ static int read_exact(int fd, void *buf, size_t count)
 }
 
 static int write_exact(int fd, const void *buf, size_t count)
+    __attribute__((unused));
+static int write_exact(int fd, const void *buf, size_t count)
 {
     size_t total = 0;
     while (total < count) {
